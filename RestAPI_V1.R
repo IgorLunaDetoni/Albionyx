@@ -10,6 +10,7 @@ library(tsfgrnn)
 library(plumber)
 library(Rook)
 
+test<-read.csv("../DadosTeste/test.xlsx")
 
 # Return message input ----------------------------------------------------
 
@@ -20,11 +21,6 @@ library(Rook)
 Check <-function(msg="") {
   list(msg = paste0("Im listenning, export data in csv format '", msg, "'"), time = Sys.time())
 }
-
-
-
-
-
 
 
 # Carregar os dados usando o ROOK abaixo e ver como que é feito pra linkar o caminho da pasta e colocar um exemplo
@@ -39,21 +35,12 @@ function(req) {
   result <- read.csv(file)
   result
 }
+
 # Variáveis da Rest API e conexão -----------------------------------------
 
 
 
 # Teste de carregamento de dados ------------------------------------------
-
-
-#* parse csv file
-#* @param req the request object
-#* @post /file
-
-
-
-
-
 
 
 
@@ -97,4 +84,27 @@ function(req){
   # Modelo
   HW1 <- HoltWinters(dfts)
 }
+
+
+
+
+
+
+#* @serializer csv
+#* @post /csv
+function(req) {
+  req$rook.input$rewind()
+  f <- tempfile()
+  writeLines(req$rook.input$read_lines(), f)
+  df <- read.csv(f)
+  response <- list(response = df)
+  response
+}
+
+library(httr)
+library(readr)
+
+write.csv(mtcars, "mtcars.csv")
+req <- POST("http://127.0.0.1:8833/csv", body = upload_file("mtcars.csv"))
+content(req)
 
